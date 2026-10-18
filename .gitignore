@@ -1,0 +1,26 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+
+# JetBrains Rider (per-user IDE state)
+.idea/
+*.sln.iml
+*.DotSettings.user
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Test results and coverage
+TestResults/
+coverage*.xml
+*.coverage
+
+# OS
+.DS_Store
+Thumbs.db

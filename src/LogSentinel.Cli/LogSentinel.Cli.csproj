@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>LogSentinel.Cli</RootNamespace>
+    <AssemblyName>logsentinel</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LogSentinel.Core\LogSentinel.Core.csproj" />
+  </ItemGroup>
+
+</Project>

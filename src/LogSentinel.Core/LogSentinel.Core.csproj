@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>LogSentinel.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Lets the tests reach internal helpers without making them public. -->
+    <InternalsVisibleTo Include="LogSentinel.Tests" />
+  </ItemGroup>
+
+</Project>
