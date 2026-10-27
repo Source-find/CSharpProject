@@ -1,4 +1,4 @@
-namespace LogSentinel.Tests;
+namespace LogDiver.Tests;
 
 /// <summary>
 /// Verifies that the test project is wired up correctly.

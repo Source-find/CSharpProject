@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <RootNamespace>LogSentinel.Cli</RootNamespace>
-    <AssemblyName>logsentinel</AssemblyName>
+    <RootNamespace>LogDiver.Cli</RootNamespace>
+    <AssemblyName>logdiver</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LogSentinel.Core\LogSentinel.Core.csproj" />
+    <ProjectReference Include="..\LogDiver.Core\LogDiver.Core.csproj" />
   </ItemGroup>
 
 </Project>

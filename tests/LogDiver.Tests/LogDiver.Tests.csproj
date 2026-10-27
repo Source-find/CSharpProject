@@ -3,6 +3,7 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <RootNamespace>LogDiver.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\LogSentinel.Core\LogSentinel.Core.csproj" />
+    <ProjectReference Include="..\..\src\LogDiver.Core\LogDiver.Core.csproj" />
   </ItemGroup>
 
 </Project>

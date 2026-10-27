@@ -9,10 +9,10 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/LogSentinel.Core/LogSentinel.Core.csproj" />
-    <Project Path="src/LogSentinel.Cli/LogSentinel.Cli.csproj" />
+    <Project Path="src/LogDiver.Cli/LogDiver.Cli.csproj" />
+    <Project Path="src/LogDiver.Core/LogDiver.Core.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/LogSentinel.Tests/LogSentinel.Tests.csproj" />
+    <Project Path="tests/LogDiver.Tests/LogDiver.Tests.csproj" />
   </Folder>
 </Solution>
