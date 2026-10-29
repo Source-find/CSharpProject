@@ -60,10 +60,8 @@ internal ref struct SpanTokenizer
         return true;
     }
 
-    /// <summary>
-    /// Reads a field wrapped in double quotes. A quote preceded by an odd number of backslashes is escaped
-    /// and belongs to the value, which is how Apache and Nginx log quotes inside a field.
-    /// </summary>
+    // Reads a field wrapped in double quotes. A quote preceded by an odd number of backslashes is escaped
+    // and belongs to the value, which is how Apache and Nginx log quotes inside a field.
     public bool TryReadQuoted(out ReadOnlySpan<char> value)
     {
         value = default;

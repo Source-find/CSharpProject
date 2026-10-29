@@ -7,7 +7,8 @@ public class InputSanitizerTests
     [Fact]
     public void Sanitize_PlainText_ReturnsSameText()
     {
-        Assert.Equal("GET /index.html", InputSanitizer.Sanitize("GET /index.html", 100));
+        Assert.Equal("GET /index.html",
+            InputSanitizer.Sanitize("GET /index.html", 100));
     }
 
     [Fact]

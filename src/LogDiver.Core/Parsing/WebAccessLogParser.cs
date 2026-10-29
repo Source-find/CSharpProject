@@ -5,10 +5,8 @@ using LogDiver.Core.Events;
 
 namespace LogDiver.Core.Parsing;
 
-/// <summary>
-/// Parses Apache/Nginx access log lines in the "common" or "combined" format:
-/// <c>203.0.113.9 - frank [27/Oct/2026:14:03:11 +0100] "GET /index.html HTTP/1.1" 200 2326 "referer" "user agent"</c>.
-/// </summary>
+// Parses Apache/Nginx access log lines in the "common" or "combined" format:
+// <c>203.0.113.9 - frank [27/Oct/2026:14:03:11 +0100] "GET /index.html HTTP/1.1" 200 2326 "referer" "user agent"</c>.
 public sealed class WebAccessLogParser : ILogParser
 {
     private const string TimestampFormat = "dd/MMM/yyyy:HH:mm:ss";
@@ -65,7 +63,7 @@ public sealed class WebAccessLogParser : ILogParser
         return true;
     }
 
-    /// <summary>Parses <c>27/Oct/2026:14:03:11 +0100</c>.</summary>
+    // Parses <c>27/Oct/2026:14:03:11 +0100</c>.</summary>
     private static bool TryParseTimestamp(ReadOnlySpan<char> text, out DateTimeOffset timestamp)
     {
         timestamp = default;
@@ -82,7 +80,7 @@ public sealed class WebAccessLogParser : ILogParser
         return true;
     }
 
-    /// <summary>Parses an offset such as <c>+0100</c> or <c>-0530</c>.</summary>
+    //Parses an offset such as <c>+0100</c> or <c>-0530</c>.</summary>
     private static bool TryParseUtcOffset(ReadOnlySpan<char> text, out TimeSpan offset)
     {
         offset = TimeSpan.Zero;
@@ -113,10 +111,8 @@ public sealed class WebAccessLogParser : ILogParser
         int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out statusCode)
         && statusCode is >= MinStatusCode and <= MaxStatusCode;
 
-    /// <summary>
-    /// Splits <c>GET /path?q=1 HTTP/1.1</c> into method and path. Scanners often send garbage such as a TLS
-    /// handshake (<c>\x16\x03\x01</c>); then there is no method and the whole request is kept as the path.
-    /// </summary>
+    // Splits <c>GET /path?q=1 HTTP/1.1</c> into method and path. Scanners often send garbage such as a TLS
+    // handshake (<c>\x16\x03\x01</c>); then there is no method and the whole request is kept as the path.
     private static void SplitRequestLine(
         ReadOnlySpan<char> request, out ReadOnlySpan<char> method, out ReadOnlySpan<char> path)
     {
@@ -134,7 +130,7 @@ public sealed class WebAccessLogParser : ILogParser
         path = lastSpace >= 0 ? target[..lastSpace] : target;
     }
 
-    /// <summary>Returns null for missing fields (empty or <c>-</c>), otherwise the sanitized value.</summary>
+    // Returns null for missing fields (empty or <c>-</c>), otherwise the sanitized value.</summary>
     private static string? SanitizeOptional(ReadOnlySpan<char> value, int maxLength) =>
         value.IsEmpty || value.SequenceEqual(EmptyField.AsSpan())
             ? null

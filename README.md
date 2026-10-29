@@ -1,6 +1,6 @@
 # LogDiver
 
-LogDiver is a mini-SIEM for the console. It reads security-relevant logs (SSH auth logs and web server
+LogDiver is a tiny SIEM(Security Information and Event Manager) for the console. It reads security-relevant logs (SSH auth logs and web server
 access logs), detects suspicious activity such as brute-force logins, password spraying and web scanning,
 and shows alerts in a live dashboard. Everything runs locally, so no log data leaves the machine.
 
@@ -34,6 +34,7 @@ dotnet run --project src/LogDiver.Cli
 ```bash
 dotnet test
 ```
+## Technologies used
 
 ## Project structure
 
@@ -46,3 +47,6 @@ dotnet test
 | `Directory.Build.props` | Shared build settings: .NET 10, nullable reference types, warnings as errors, analyzers |
 | `Directory.Packages.props` | Central NuGet package versions |
 | `.github/workflows/ci.yml` | Builds and tests on every push to GitHub |
+
+
+ReadMe restructured by AI

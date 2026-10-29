@@ -5,14 +5,10 @@ using LogDiver.Core.Events;
 
 namespace LogDiver.Core.Parsing;
 
-/// <summary>
 /// Parses OpenSSH server lines from a syslog auth log, for example <c>/var/log/auth.log</c>.
-/// </summary>
-/// <remarks>
 /// Supports the classic syslog timestamp (<c>Oct 27 14:03:11</c>, which has no year or time zone) and the
 /// RFC 3339 timestamp used by newer rsyslog defaults (<c>2026-10-27T14:03:11.123456+01:00</c>).
 /// Only failed and accepted logins become events; every other line returns <c>false</c>.
-/// </remarks>
 public sealed class SshAuthLogParser : ILogParser
 {
     private const string FailedPrefix = "Failed ";
@@ -31,13 +27,13 @@ public sealed class SshAuthLogParser : ILogParser
 
     private readonly TimeProvider _timeProvider;
 
-    /// <summary>Creates a parser that uses the system clock to guess the year of classic syslog timestamps.</summary>
+    // Creates a parser that uses the system clock to guess the year of classic syslog timestamps.</summary>
     public SshAuthLogParser()
         : this(TimeProvider.System)
     {
     }
 
-    /// <summary>Creates a parser that uses <paramref name="timeProvider"/> for the current year and local time zone.</summary>
+    // Creates a parser that uses <paramref name="timeProvider"/> for the current year and local time zone.</summary>
     public SshAuthLogParser(TimeProvider timeProvider)
     {
         ArgumentNullException.ThrowIfNull(timeProvider);
@@ -105,10 +101,8 @@ public sealed class SshAuthLogParser : ILogParser
             && TryBuildClassicTimestamp(month, day, time, out timestamp);
     }
 
-    /// <summary>
-    /// Classic syslog timestamps have no year. Assume the current year, unless the date is later than today,
-    /// which means the line was written last year (a December log read in January).
-    /// </summary>
+    // Classic syslog timestamps have no year. Assume the current year, unless the date is later than today,
+    // which means the line was written last year (a December log read in January).
     private bool TryBuildClassicTimestamp(int month, int day, TimeOnly time, out DateTimeOffset timestamp)
     {
         timestamp = default;
@@ -142,16 +136,14 @@ public sealed class SshAuthLogParser : ILogParser
         return false;
     }
 
-    /// <summary>OpenSSH 9.8+ logs from <c>sshd-session</c> instead of <c>sshd</c>.</summary>
+    // OpenSSH 9.8+ logs from <c>sshd-session</c> instead of <c>sshd</c>.</summary>
     private static bool IsSshDaemon(ReadOnlySpan<char> program) =>
         program.StartsWith("sshd[", StringComparison.Ordinal)
         || program.StartsWith("sshd-session[", StringComparison.Ordinal)
         || program.SequenceEqual("sshd:".AsSpan());
 
-    /// <summary>
-    /// Unwraps <c>message repeated 3 times: [ Failed password ... ]</c>. Lines without the wrapper are
-    /// left unchanged with an occurrence count of 1.
-    /// </summary>
+    // Unwraps <c>message repeated 3 times: [ Failed password ... ]</c>. Lines without the wrapper are
+    // left unchanged with an occurrence count of 1.
     private static bool TryUnwrapRepeatedMessage(ref ReadOnlySpan<char> message, out int occurrences)
     {
         occurrences = 1;
@@ -180,9 +172,7 @@ public sealed class SshAuthLogParser : ILogParser
         return true;
     }
 
-    /// <summary>
     /// Parses <c>Failed|Accepted &lt;method&gt; for [invalid user ]&lt;user&gt; from &lt;ip&gt; port &lt;port&gt; ...</c>.
-    /// </summary>
     private static bool TryParseLoginMessage(
         ReadOnlySpan<char> message,
         out EventKind kind,

@@ -1,9 +1,7 @@
 namespace LogDiver.Core.Parsing;
 
-/// <summary>
-/// Makes attacker-controlled log text safe to store and display: limits its length and replaces characters
-/// that can manipulate a terminal (ANSI escape sequences) or reverse how text is displayed (Unicode bidi overrides).
-/// </summary>
+// Makes attacker-controlled log text safe to store and display: limits its length and replaces characters
+// that can manipulate a terminal (ANSI escape sequences) or reverse how text is displayed (Unicode bidi overrides).
 internal static class InputSanitizer
 {
     public const int MaxRawLineLength = 4096;
@@ -16,10 +14,8 @@ internal static class InputSanitizer
 
     private const int StackAllocThreshold = 256;
 
-    /// <summary>
     /// Returns <paramref name="value"/> cut to <paramref name="maxLength"/> characters, with unsafe characters
     /// replaced by <see cref="ReplacementCharacter"/>. Allocates exactly one string.
-    /// </summary>
     public static string Sanitize(ReadOnlySpan<char> value, int maxLength)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(maxLength);

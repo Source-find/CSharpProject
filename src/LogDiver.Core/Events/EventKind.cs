@@ -9,7 +9,7 @@ public enum EventKind
     //A login attempt was rejected (wrong password, unknown user, rejected key).
     LoginFailed,
 
-    //A login attempt was accepted.
+    //Login attempt was accepted.
     LoginSucceeded,
 
     //An HTTP request was served by a web server.
