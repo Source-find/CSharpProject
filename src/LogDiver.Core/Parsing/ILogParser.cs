@@ -3,14 +3,13 @@ using LogDiver.Core.Events;
 
 namespace LogDiver.Core.Parsing;
 
-
-//Turns a single log line into a <see cref="LogEvent"/>.
+// Turns one log line into a LogEvent.
 public interface ILogParser
 {
-    //Gets the valid log format.
+    // The log format this parser reads.
     LogFormat Format { get; }
 
-    // Tries to parse one line. Returns <c>false</c> for malformed lines and for lines that are valid but not
-    // security-relevant. Never throws on bad input, because log lines are untrusted.
+    // Returns false for broken lines and for lines we don't care about.
+    // Never throws, because log lines can't be trusted.
     bool TryParse(ReadOnlySpan<char> line, [NotNullWhen(true)] out LogEvent? logEvent);
 }

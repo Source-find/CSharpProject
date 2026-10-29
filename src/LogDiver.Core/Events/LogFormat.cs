@@ -1,14 +1,14 @@
 namespace LogDiver.Core.Events;
 
-/// The log formats LogDiver can read.
+// The log formats LogDiver can read.
 public enum LogFormat
 {
-    // Not set. Parsers never produce this value.
+    // Default value. Parsers never return this.
     Unknown = 0,
 
-    // OpenSSH server lines from a syslog auth log, for example <c>/var/log/auth.log</c>
+    // SSH login lines from a Linux auth log (/var/log/auth.log).
     SshAuth,
 
-    // Apache/Nginx access log in the "common" or "combined" format
+    // Apache/Nginx access log ("common" or "combined" format).
     WebAccess,
 }

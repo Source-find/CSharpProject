@@ -24,7 +24,6 @@ public class SshAuthLogParserTests
         Assert.Equal(IPAddress.Parse("203.0.113.5"), logEvent.SourceIp);
         Assert.Equal("web01", logEvent.Host);
         Assert.Equal(new DateTimeOffset(2026, 10, 27, 9, 15, 42, TimeSpan.Zero), logEvent.Timestamp);
-        Assert.Equal(1, logEvent.OccurrenceCount);
         Assert.Equal(line, logEvent.RawLine);
     }
 
@@ -83,17 +82,6 @@ public class SshAuthLogParserTests
     }
 
     [Fact]
-    public void TryParse_MessageRepeated_SetsOccurrenceCount()
-    {
-        var logEvent = ParseValid(
-            "Oct 27 09:15:45 web01 sshd[1234]: message repeated 3 times: [ Failed password for root from 203.0.113.5 port 52144 ssh2]");
-
-        Assert.Equal(EventKind.LoginFailed, logEvent.Kind);
-        Assert.Equal(3, logEvent.OccurrenceCount);
-        Assert.Equal(IPAddress.Parse("203.0.113.5"), logEvent.SourceIp);
-    }
-
-    [Fact]
     public void TryParse_UserNameContainingFakeFromClause_UsesRealSourceAddress()
     {
         // Log injection: the attacker picks a user name that looks like the rest of the message.
@@ -138,7 +126,6 @@ public class SshAuthLogParserTests
     [InlineData("Foo 27 09:15:42 web01 sshd[1234]: Failed password for root from 203.0.113.5 port 1 ssh2")]
     [InlineData("Feb 30 09:15:42 web01 sshd[1234]: Failed password for root from 203.0.113.5 port 1 ssh2")]
     [InlineData("Oct 27 25:15:42 web01 sshd[1234]: Failed password for root from 203.0.113.5 port 1 ssh2")]
-    [InlineData("Oct 27 09:15:42 web01 sshd[1234]: message repeated many times: [ Failed password for root from 203.0.113.5 port 1 ssh2]")]
     public void TryParse_IrrelevantOrMalformedLine_ReturnsFalse(string line)
     {
         var parsed = _parser.TryParse(line, out var logEvent);

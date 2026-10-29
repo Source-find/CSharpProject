@@ -1,9 +1,7 @@
 namespace LogDiver.Core.Parsing;
 
-/// <summary>
-/// Reads space-separated, quoted and bracketed fields from a line without allocating.
-/// Every value it returns is a slice of the original line.
-/// </summary>
+// Splits a line into fields (words, "quoted" and [bracketed] text) without copying it.
+// Every field is a slice of the original line, so nothing new is allocated.
 internal ref struct SpanTokenizer
 {
     private ReadOnlySpan<char> _remaining;
@@ -13,10 +11,10 @@ internal ref struct SpanTokenizer
         _remaining = text;
     }
 
-    /// <summary>The part of the line that has not been read yet.</summary>
+    // The part of the line that hasn't been read yet.
     public readonly ReadOnlySpan<char> Remaining => _remaining;
 
-    /// <summary>Reads the next field up to a space. Repeated spaces are skipped.</summary>
+    // Reads the next word. Extra spaces are skipped.
     public bool TryReadToken(out ReadOnlySpan<char> token)
     {
         _remaining = _remaining.TrimStart(' ');
@@ -39,7 +37,7 @@ internal ref struct SpanTokenizer
         return true;
     }
 
-    /// <summary>Reads a field wrapped in <paramref name="open"/> and <paramref name="close"/>, such as <c>[...]</c>.</summary>
+    // Reads text between two characters, for example [ and ].
     public bool TryReadDelimited(char open, char close, out ReadOnlySpan<char> value)
     {
         value = default;
@@ -60,8 +58,7 @@ internal ref struct SpanTokenizer
         return true;
     }
 
-    // Reads a field wrapped in double quotes. A quote preceded by an odd number of backslashes is escaped
-    // and belongs to the value, which is how Apache and Nginx log quotes inside a field.
+    // Reads text between double quotes. A quote with a backslash in front belongs to the text.
     public bool TryReadQuoted(out ReadOnlySpan<char> value)
     {
         value = default;

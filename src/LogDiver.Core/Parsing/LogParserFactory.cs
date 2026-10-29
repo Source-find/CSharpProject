@@ -2,30 +2,30 @@ using LogDiver.Core.Events;
 
 namespace LogDiver.Core.Parsing;
 
-// Creates the right <see cref="ILogParser"/> for a log format, and can guess the format from sample lines.
+// Factory pattern: creates the right parser for a log format, and can guess the format of a file.
 public sealed class LogParserFactory
 {
-    // How many lines <see cref="DetectFormat"/> looks at.
+    // How many lines DetectFormat looks at.
     public const int DetectionSampleSize = 100;
 
     private static readonly LogFormat[] KnownFormats = [LogFormat.SshAuth, LogFormat.WebAccess];
 
     private readonly TimeProvider _timeProvider;
 
-    //Creates a factory whose parsers use the system clock.
+    // Uses the system clock.
     public LogParserFactory()
         : this(TimeProvider.System)
     {
     }
 
-    // Creates a factory whose parsers use <paramref name="timeProvider"/>.
+    // Uses the given clock (tests pass in a fake one).
     public LogParserFactory(TimeProvider timeProvider)
     {
         ArgumentNullException.ThrowIfNull(timeProvider);
         _timeProvider = timeProvider;
     }
 
-    // Creates a parser for <paramref name="format"/>.
+    // Returns a parser for the given format.
     public ILogParser Create(LogFormat format) => format switch
     {
         LogFormat.SshAuth => new SshAuthLogParser(_timeProvider),
@@ -33,8 +33,8 @@ public sealed class LogParserFactory
         _ => throw new ArgumentOutOfRangeException(nameof(format), format, "There is no parser for this log format."),
     };
 
-    // Guesses the format by trying every parser on the first <see cref="DetectionSampleSize"/> lines and picking
-    // the one that understands the most. Returns <see cref="LogFormat.Unknown"/> if no parser understands any line.
+    // Tries every parser on the first lines and picks the one that understands the most.
+    // Returns Unknown if none of them understands anything.
     public LogFormat DetectFormat(IEnumerable<string> sampleLines)
     {
         ArgumentNullException.ThrowIfNull(sampleLines);

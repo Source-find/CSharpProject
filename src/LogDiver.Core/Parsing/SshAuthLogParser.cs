@@ -5,10 +5,9 @@ using LogDiver.Core.Events;
 
 namespace LogDiver.Core.Parsing;
 
-/// Parses OpenSSH server lines from a syslog auth log, for example <c>/var/log/auth.log</c>.
-/// Supports the classic syslog timestamp (<c>Oct 27 14:03:11</c>, which has no year or time zone) and the
-/// RFC 3339 timestamp used by newer rsyslog defaults (<c>2026-10-27T14:03:11.123456+01:00</c>).
-/// Only failed and accepted logins become events; every other line returns <c>false</c>.
+// Reads SSH logins from a Linux auth log (/var/log/auth.log).
+// Handles both the old timestamp style (Oct 27 14:03:11, no year) and the newer one
+// (2026-10-27T14:03:11+01:00). Only failed and successful logins become events.
 public sealed class SshAuthLogParser : ILogParser
 {
     private const string FailedPrefix = "Failed ";
@@ -17,8 +16,6 @@ public sealed class SshAuthLogParser : ILogParser
     private const string InvalidUserPrefix = "invalid user ";
     private const string FromSeparator = " from ";
     private const string PortKeyword = "port";
-    private const string RepeatedPrefix = "message repeated ";
-    private const string RepeatedBodyStart = "times: [";
     private const string ClassicTimeFormat = "HH:mm:ss";
     private const int AllowedClockSkewDays = 1;
 
@@ -27,23 +24,21 @@ public sealed class SshAuthLogParser : ILogParser
 
     private readonly TimeProvider _timeProvider;
 
-    // Creates a parser that uses the system clock to guess the year of classic syslog timestamps.</summary>
+    // Uses the system clock to work out the year (the old timestamp style has none).
     public SshAuthLogParser()
         : this(TimeProvider.System)
     {
     }
 
-    // Creates a parser that uses <paramref name="timeProvider"/> for the current year and local time zone.</summary>
+    // Uses the given clock (tests pass in a fake one).
     public SshAuthLogParser(TimeProvider timeProvider)
     {
         ArgumentNullException.ThrowIfNull(timeProvider);
         _timeProvider = timeProvider;
     }
 
-    /// <inheritdoc />
     public LogFormat Format => LogFormat.SshAuth;
 
-    /// <inheritdoc />
     public bool TryParse(ReadOnlySpan<char> line, [NotNullWhen(true)] out LogEvent? logEvent)
     {
         logEvent = null;
@@ -58,8 +53,7 @@ public sealed class SshAuthLogParser : ILogParser
         }
 
         var message = tokenizer.Remaining.Trim();
-        if (!TryUnwrapRepeatedMessage(ref message, out var occurrences)
-            || !TryParseLoginMessage(message, out var kind, out var user, out var sourceIp))
+        if (!TryParseLoginMessage(message, out var kind, out var user, out var sourceIp))
         {
             return false;
         }
@@ -73,7 +67,6 @@ public sealed class SshAuthLogParser : ILogParser
             Host = InputSanitizer.Sanitize(host, InputSanitizer.MaxHostLength),
             User = InputSanitizer.Sanitize(user, InputSanitizer.MaxUserLength),
             SourceIp = sourceIp,
-            OccurrenceCount = occurrences,
         };
         return true;
     }
@@ -101,8 +94,8 @@ public sealed class SshAuthLogParser : ILogParser
             && TryBuildClassicTimestamp(month, day, time, out timestamp);
     }
 
-    // Classic syslog timestamps have no year. Assume the current year, unless the date is later than today,
-    // which means the line was written last year (a December log read in January).
+    // The old timestamp style has no year. Use this year, unless the date is in the future,
+    // which means the line is from last year (a December log read in January).
     private bool TryBuildClassicTimestamp(int month, int day, TimeOnly time, out DateTimeOffset timestamp)
     {
         timestamp = default;
@@ -136,43 +129,13 @@ public sealed class SshAuthLogParser : ILogParser
         return false;
     }
 
-    // OpenSSH 9.8+ logs from <c>sshd-session</c> instead of <c>sshd</c>.</summary>
+    // Newer OpenSSH versions (9.8+) log as "sshd-session" instead of "sshd".
     private static bool IsSshDaemon(ReadOnlySpan<char> program) =>
         program.StartsWith("sshd[", StringComparison.Ordinal)
         || program.StartsWith("sshd-session[", StringComparison.Ordinal)
         || program.SequenceEqual("sshd:".AsSpan());
 
-    // Unwraps <c>message repeated 3 times: [ Failed password ... ]</c>. Lines without the wrapper are
-    // left unchanged with an occurrence count of 1.
-    private static bool TryUnwrapRepeatedMessage(ref ReadOnlySpan<char> message, out int occurrences)
-    {
-        occurrences = 1;
-        if (!message.StartsWith(RepeatedPrefix, StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        var rest = message[RepeatedPrefix.Length..];
-        var countEnd = rest.IndexOf(' ');
-        if (countEnd <= 0
-            || !int.TryParse(rest[..countEnd], NumberStyles.None, CultureInfo.InvariantCulture, out occurrences)
-            || occurrences < 1)
-        {
-            return false;
-        }
-
-        rest = rest[(countEnd + 1)..];
-        var bodyEnd = rest.LastIndexOf(']');
-        if (!rest.StartsWith(RepeatedBodyStart, StringComparison.Ordinal) || bodyEnd < RepeatedBodyStart.Length)
-        {
-            return false;
-        }
-
-        message = rest[RepeatedBodyStart.Length..bodyEnd].Trim();
-        return true;
-    }
-
-    /// Parses <c>Failed|Accepted &lt;method&gt; for [invalid user ]&lt;user&gt; from &lt;ip&gt; port &lt;port&gt; ...</c>.
+    // Reads "Failed/Accepted <method> for [invalid user] <user> from <ip> port <port>".
     private static bool TryParseLoginMessage(
         ReadOnlySpan<char> message,
         out EventKind kind,
@@ -211,7 +174,7 @@ public sealed class SshAuthLogParser : ILogParser
             rest = rest[InvalidUserPrefix.Length..];
         }
 
-        // The user name is chosen by the attacker and can itself contain " from 1.2.3.4 port 1".
+        // The attacker chooses the user name and can make it contain " from 1.2.3.4 port 1".
         // sshd always writes the real address last, so split on the LAST " from ".
         var fromIndex = rest.LastIndexOf(FromSeparator, StringComparison.Ordinal);
         if (fromIndex < 0)

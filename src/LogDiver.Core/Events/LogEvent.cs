@@ -2,46 +2,41 @@ using System.Net;
 
 namespace LogDiver.Core.Events;
 
-// One normalised, security-relevant event parsed from a log line.
-// All text fields come from the log and must be treated as attacker-controlled. Parsers truncate them and
-// replace control characters, but they are still raw text: escape them before rendering (for example with
-// Spectre.Console's <c>Markup.Escape</c>).
+// One security-relevant event read from a log line.
+// All text comes from the log and may be written by an attacker. It is shortened and cleaned,
+// but must still be escaped before it is shown in the console.
 public sealed record LogEvent
 {
-    // When the event happened, with the offset from the log (or the local offset if the log has none)
+    // When it happened.
     public required DateTimeOffset Timestamp { get; init; }
 
-    // The log format the event was parsed from.
+    // Which log format it came from.
     public required LogFormat Format { get; init; }
 
-    // What happened during the parsing
+    // What happened.
     public required EventKind Kind { get; init; }
 
-    // The original line, truncated and with control characters replaced.
+    // The original line (shortened and cleaned).
     public required string RawLine { get; init; }
 
-    // The host that wrote the log line, when the format includes it.
+    // The server that wrote the line, if the log includes it.
     public string? Host { get; init; }
 
-    // The user name involved, when known.
+    // The user name, if known.
     public string? User { get; init; }
 
-    //The remote address that caused the event.
+    // The IP address the login or request came from.
     public IPAddress? SourceIp { get; init; }
 
-    // HTTP status code, for web events.
+    // HTTP status code (web logs only).
     public int? StatusCode { get; init; }
 
-    // HTTP method such as <c>GET</c>, for web events. Null when the request line was malformed.
+    // HTTP method such as GET (web logs only). Null if the request was garbage.
     public string? HttpMethod { get; init; }
 
-    //Requested path including the query string, for web events.
+    // Requested path and query string (web logs only).
     public string? RequestPath { get; init; }
 
-    //The client's User-Agent header, for web events in the combined format.
+    // The client's User-Agent (web logs only, combined format).
     public string? UserAgent { get; init; }
-
-    // How many times this event happened. Syslog collapses identical lines into
-    // <c>message repeated N times</c>, and detection rules must count all of them.
-    public int OccurrenceCount { get; init; } = 1;
 }

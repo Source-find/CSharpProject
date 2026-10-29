@@ -1,17 +1,17 @@
 namespace LogDiver.Core.Events;
 
-// What happened in a single log line, independent of the log format it came from.
+// What happened in a log line, no matter which log format it came from.
 public enum EventKind
 {
-    //Not set. Parsers never produce this value.
+    // Default value. Parsers never return this.
     Unknown = 0,
 
-    //A login attempt was rejected (wrong password, unknown user, rejected key).
+    // A login was rejected (wrong password, unknown user or rejected key).
     LoginFailed,
 
-    //Login attempt was accepted.
+    // A login succeeded.
     LoginSucceeded,
 
-    //An HTTP request was served by a web server.
+    // A web server handled an HTTP request.
     HttpRequest,
 }

@@ -2,7 +2,7 @@ using Spectre.Console;
 
 namespace LogDiver.Cli;
 
-// The program itself, will work as its own interface and should show different things like attempted logins, brute force and so on.
+// Entry point of the app. Will show the analysis results, such as failed logins and brute-force attempts.
 internal static class Program
 {
     private static int Main()

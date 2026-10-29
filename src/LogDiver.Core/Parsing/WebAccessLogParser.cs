@@ -5,8 +5,8 @@ using LogDiver.Core.Events;
 
 namespace LogDiver.Core.Parsing;
 
-// Parses Apache/Nginx access log lines in the "common" or "combined" format:
-// <c>203.0.113.9 - frank [27/Oct/2026:14:03:11 +0100] "GET /index.html HTTP/1.1" 200 2326 "referer" "user agent"</c>.
+// Reads Apache/Nginx access log lines, for example:
+// 203.0.113.9 - frank [27/Oct/2026:14:03:11 +0100] "GET /index.html HTTP/1.1" 200 2326 "-" "Mozilla/5.0"
 public sealed class WebAccessLogParser : ILogParser
 {
     private const string TimestampFormat = "dd/MMM/yyyy:HH:mm:ss";
@@ -17,10 +17,8 @@ public sealed class WebAccessLogParser : ILogParser
 
     private static readonly TimeSpan MaxUtcOffset = TimeSpan.FromHours(14);
 
-    /// <inheritdoc />
     public LogFormat Format => LogFormat.WebAccess;
 
-    /// <inheritdoc />
     public bool TryParse(ReadOnlySpan<char> line, [NotNullWhen(true)] out LogEvent? logEvent)
     {
         logEvent = null;
@@ -39,7 +37,7 @@ public sealed class WebAccessLogParser : ILogParser
             return false;
         }
 
-        // Response size and referer are not used. The user agent only exists in the combined format.
+        // Skip the response size and referer. The user agent is only in the combined format.
         _ = tokenizer.TryReadToken(out _);
         var userAgent = tokenizer.TryReadQuoted(out _) && tokenizer.TryReadQuoted(out var userAgentToken)
             ? userAgentToken
@@ -63,7 +61,7 @@ public sealed class WebAccessLogParser : ILogParser
         return true;
     }
 
-    // Parses <c>27/Oct/2026:14:03:11 +0100</c>.</summary>
+    // Reads a timestamp like 27/Oct/2026:14:03:11 +0100.
     private static bool TryParseTimestamp(ReadOnlySpan<char> text, out DateTimeOffset timestamp)
     {
         timestamp = default;
@@ -80,7 +78,7 @@ public sealed class WebAccessLogParser : ILogParser
         return true;
     }
 
-    //Parses an offset such as <c>+0100</c> or <c>-0530</c>.</summary>
+    // Reads a time zone offset like +0100 or -0530.
     private static bool TryParseUtcOffset(ReadOnlySpan<char> text, out TimeSpan offset)
     {
         offset = TimeSpan.Zero;
@@ -111,8 +109,8 @@ public sealed class WebAccessLogParser : ILogParser
         int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out statusCode)
         && statusCode is >= MinStatusCode and <= MaxStatusCode;
 
-    // Splits <c>GET /path?q=1 HTTP/1.1</c> into method and path. Scanners often send garbage such as a TLS
-    // handshake (<c>\x16\x03\x01</c>); then there is no method and the whole request is kept as the path.
+    // Splits "GET /path HTTP/1.1" into method and path. Scanners sometimes send garbage
+    // with no method; then the whole request is kept as the path.
     private static void SplitRequestLine(
         ReadOnlySpan<char> request, out ReadOnlySpan<char> method, out ReadOnlySpan<char> path)
     {
@@ -130,7 +128,7 @@ public sealed class WebAccessLogParser : ILogParser
         path = lastSpace >= 0 ? target[..lastSpace] : target;
     }
 
-    // Returns null for missing fields (empty or <c>-</c>), otherwise the sanitized value.</summary>
+    // Returns null for missing fields (empty or "-"), otherwise the cleaned value.
     private static string? SanitizeOptional(ReadOnlySpan<char> value, int maxLength) =>
         value.IsEmpty || value.SequenceEqual(EmptyField.AsSpan())
             ? null
