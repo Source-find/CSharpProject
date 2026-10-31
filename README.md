@@ -25,9 +25,14 @@ dotnet build
 
 ## Run
 
+Pass one or more log files (SSH `auth.log` and/or web server access logs). The format of each file is detected
+automatically.
+
 ```bash
-dotnet run --project src/LogDiver.Cli
+dotnet run --project src/LogDiver.Cli -- path/to/auth.log path/to/access.log
 ```
+
+Press Ctrl+C to stop a long analysis.
 
 ## Test
 
