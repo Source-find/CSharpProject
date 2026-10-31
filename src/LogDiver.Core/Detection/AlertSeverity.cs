@@ -1,6 +1,6 @@
 namespace LogDiver.Core.Detection;
 
-// How serious an alert is.
+// How serious of an alert it is.
 public enum AlertSeverity
 {
     Low,

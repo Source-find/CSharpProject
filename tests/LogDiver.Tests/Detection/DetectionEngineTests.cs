@@ -149,6 +149,72 @@ public class DetectionEngineTests
         Assert.Throws<ArgumentNullException>(() => _engine.Process(null!));
     }
 
+    // ---- AlertRaised event ----
+
+    [Fact]
+    public void AlertRaised_WhenAlertIsFound_IsRaisedOnceWithTheSameAlertAndTheEngineAsSender()
+    {
+        var raised = new List<(object? Sender, Alert Alert)>();
+        _engine.AlertRaised += (sender, e) => raised.Add((sender, e.Alert));
+
+        var returned = ProcessAll(FailedLogins(Attacker, count: 10, interval: TimeSpan.FromSeconds(1)));
+
+        var (sender, alert) = Assert.Single(raised);
+        Assert.Same(_engine, sender);
+        Assert.Same(Assert.Single(returned), alert);
+    }
+
+    [Fact]
+    public void AlertRaised_WhenNothingIsFound_IsNotRaised()
+    {
+        var raisedCount = 0;
+        _engine.AlertRaised += (_, _) => raisedCount++;
+
+        ProcessAll(FailedLogins(Attacker, count: 9, interval: TimeSpan.FromSeconds(1)));
+
+        Assert.Equal(0, raisedCount);
+    }
+
+    [Fact]
+    public void AlertRaised_WithSeveralSubscribers_ReachesEveryOne()
+    {
+        var first = 0;
+        var second = 0;
+        _engine.AlertRaised += (_, _) => first++;
+        _engine.AlertRaised += (_, _) => second++;
+
+        ProcessAll([WebEvent(Attacker, Start, 200, "/.env", "Mozilla/5.0")]);
+
+        Assert.Equal(1, first);
+        Assert.Equal(1, second);
+    }
+
+    [Fact]
+    public void AlertRaised_AfterUnsubscribing_IsNoLongerReceived()
+    {
+        var raisedCount = 0;
+        void Handler(object? sender, AlertRaisedEventArgs e) => raisedCount++;
+        _engine.AlertRaised += Handler;
+        ProcessAll([WebEvent(Attacker, Start, 200, "/.env", "Mozilla/5.0")]);
+
+        _engine.AlertRaised -= Handler;
+        ProcessAll([WebEvent(Attacker, Start, 200, "/.git/config", "Mozilla/5.0")]);
+
+        Assert.Equal(1, raisedCount);
+    }
+
+    [Fact]
+    public void Process_WithoutSubscribers_StillReturnsAlerts()
+    {
+        Assert.Single(ProcessAll([WebEvent(Attacker, Start, 200, "/.env", "Mozilla/5.0")]));
+    }
+
+    [Fact]
+    public void AlertRaisedEventArgs_NullAlert_Throws()
+    {
+        Assert.Throws<ArgumentNullException>(() => new AlertRaisedEventArgs(null!));
+    }
+
     private List<Alert> ProcessAll(IEnumerable<LogEvent> events) =>
         events.SelectMany(e => _engine.Process(e)).ToList();
 

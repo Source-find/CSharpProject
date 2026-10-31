@@ -41,12 +41,7 @@ internal static class Program
                 return ExitError;
             }
 
-            var engine = new DetectionEngine();
-            var alerts = new List<Alert>();
-
-            // The pipeline calls this from a single consumer, so a plain List is safe here.
-            var result = await new IngestionPipeline().RunAsync(
-                inputs, logEvent => alerts.AddRange(engine.Process(logEvent)), cancellation.Token);
+            var (result, alerts) = await AnalyzeAsync(inputs, cancellation.Token);
 
             PrintSummary(result);
             PrintAlerts(alerts);
@@ -67,6 +62,29 @@ internal static class Program
         {
             // Unsubscribe, so this static event doesn't keep the handler (and the token source) alive.
             Console.CancelKeyPress -= onCancelKey;
+        }
+    }
+
+    // Runs every event through the detection engine and collects the alerts it raises.
+    private static async Task<(IngestionResult Result, List<Alert> Alerts)> AnalyzeAsync(
+        List<LogInput> inputs, CancellationToken cancellationToken)
+    {
+        var engine = new DetectionEngine();
+        var alerts = new List<Alert>();
+
+        // The pipeline has a single consumer, so this handler never runs on two threads at once.
+        EventHandler<AlertRaisedEventArgs> collectAlert = (_, e) => alerts.Add(e.Alert);
+        engine.AlertRaised += collectAlert;
+
+        try
+        {
+            var result = await new IngestionPipeline().RunAsync(
+                inputs, logEvent => engine.Process(logEvent), cancellationToken);
+            return (result, alerts);
+        }
+        finally
+        {
+            engine.AlertRaised -= collectAlert;
         }
     }
 

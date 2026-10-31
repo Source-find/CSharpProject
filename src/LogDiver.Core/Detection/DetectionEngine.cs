@@ -5,7 +5,7 @@ using LogDiver.Core.Events;
 
 namespace LogDiver.Core.Detection;
 
-// This is the main part of the project, which is meant to build en engine for detection of suspicious activitiy
+// This is the detection engine, which is meant to build an engine for detection of suspicious activitiy
 public sealed partial class DetectionEngine
 {
     private const int BruteForceThreshold = 10;
@@ -18,8 +18,12 @@ public sealed partial class DetectionEngine
     private readonly Dictionary<IPAddress, Queue<DateTimeOffset>> _failedLoginsByIp = new();
     private readonly Dictionary<IPAddress, Queue<DateTimeOffset>> _notFoundByIp = new();
 
-    // Checks one event against all rules and returns the alerts it caused (usually none).
-    // Time is taken from the log, so "60 seconds" means 60 seconds in the log, not on the clock.
+    // Raised once for every alert Process finds (Observer pattern). Handlers run inside the analysis,
+    // so they should be quick. Subscribers must unsubscribe (-=) when done, or the engine keeps them alive.
+    public event EventHandler<AlertRaisedEventArgs>? AlertRaised;
+
+    // Checks one event against all rules and returns the alerts caused.
+    // Time is taken from the log, so "60 seconds" means 60 seconds in the log.
     public IReadOnlyList<Alert> Process(LogEvent logEvent)
     {
         ArgumentNullException.ThrowIfNull(logEvent);
@@ -83,7 +87,7 @@ public sealed partial class DetectionEngine
                     notFound.Clear();
                 }
             }
-
+            // A lot of help gotten from AI
             // Suspicious request: known attack patterns in the path or user agent
             string? attack = null;
             var path = logEvent.RequestPath ?? string.Empty;
@@ -121,8 +125,16 @@ public sealed partial class DetectionEngine
             }
         }
 
+        foreach (var alert in alerts)
+        {
+            OnAlertRaised(alert);
+        }
+
         return alerts;
     }
+
+    // "?." means nothing happens when nobody has subscribed.
+    private void OnAlertRaised(Alert alert) => AlertRaised?.Invoke(this, new AlertRaisedEventArgs(alert));
 
     // The patterns are kept simple (no nested repetition), so a hostile path can't make them slow (ReDoS).
     [GeneratedRegex(@"\.\./|\.\.\\|\.\.%2f|\.\.%5c|%2e%2e(%2f|%5c|/)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
