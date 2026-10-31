@@ -8,6 +8,10 @@
     <File Path="global.json" />
     <File Path="README.md" />
   </Folder>
+  <Folder Name="/samples/">
+    <File Path="samples/demo-access.log" />
+    <File Path="samples/demo-auth.log" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/LogDiver.Cli/LogDiver.Cli.csproj" />
     <Project Path="src/LogDiver.Core/LogDiver.Core.csproj" />

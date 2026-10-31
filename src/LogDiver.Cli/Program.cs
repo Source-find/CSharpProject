@@ -1,4 +1,5 @@
 using System.Globalization;
+using LogDiver.Core.Detection;
 using LogDiver.Core.Events;
 using LogDiver.Core.Ingestion;
 using LogDiver.Core.Parsing;
@@ -7,8 +8,8 @@ using Spectre.Console;
 
 namespace LogDiver.Cli;
 
-// Entry point of the app. For now it reads the given log files and shows how many lines and events
-// each one had. Later it will show the analysis results, such as failed logins and brute-force attempts.
+// Entry point of the app. Reads the given log files, shows how many lines and events each one had,
+// and lists the alerts the detection engine found.
 internal static class Program
 {
     private const int ExitSuccess = 0;
@@ -40,8 +41,15 @@ internal static class Program
                 return ExitError;
             }
 
-            var result = await new IngestionPipeline().RunAsync(inputs, _ => { }, cancellation.Token);
+            var engine = new DetectionEngine();
+            var alerts = new List<Alert>();
+
+            // The pipeline calls this from a single consumer, so a plain List is safe here.
+            var result = await new IngestionPipeline().RunAsync(
+                inputs, logEvent => alerts.AddRange(engine.Process(logEvent)), cancellation.Token);
+
             PrintSummary(result);
+            PrintAlerts(alerts);
             return ExitSuccess;
         }
         catch (FileNotFoundException ex)
@@ -108,6 +116,43 @@ internal static class Program
 
         AnsiConsole.Write(table);
     }
+
+    private static void PrintAlerts(List<Alert> alerts)
+    {
+        if (alerts.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[green]No alerts.[/]");
+            return;
+        }
+
+        var table = new Table()
+            .AddColumn("Time")
+            .AddColumn("Severity")
+            .AddColumn("Rule")
+            .AddColumn("Source IP")
+            .AddColumn("Description");
+
+        foreach (var alert in alerts.OrderBy(alert => alert.Timestamp))
+        {
+            // Everything except the severity comes from the log, so escape it before Spectre reads it as markup.
+            table.AddRow(
+                alert.Timestamp.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                SeverityMarkup(alert.Severity),
+                Markup.Escape(alert.RuleName),
+                Markup.Escape(alert.SourceIp?.ToString() ?? "-"),
+                Markup.Escape(alert.Description));
+        }
+
+        AnsiConsole.MarkupLineInterpolated(CultureInfo.CurrentCulture, $"[bold]{alerts.Count} alert(s):[/]");
+        AnsiConsole.Write(table);
+    }
+
+    private static string SeverityMarkup(AlertSeverity severity) => severity switch
+    {
+        AlertSeverity.High => "[red]High[/]",
+        AlertSeverity.Medium => "[yellow]Medium[/]",
+        _ => "[grey]Low[/]",
+    };
 
     private static string FormatCount(long count) => count.ToString("N0", CultureInfo.CurrentCulture);
 }
