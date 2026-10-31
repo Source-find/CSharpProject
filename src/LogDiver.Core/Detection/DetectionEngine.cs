@@ -6,7 +6,7 @@ using LogDiver.Core.Events;
 namespace LogDiver.Core.Detection;
 
 // This is the detection engine, which is meant to build an engine for detection of suspicious activitiy
-public sealed partial class DetectionEngine
+public sealed partial class DetectionEngine : IAlertPublisher
 {
     private const int BruteForceThreshold = 10;
     private const int ScannerThreshold = 30;

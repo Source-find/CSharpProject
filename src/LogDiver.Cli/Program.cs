@@ -41,10 +41,7 @@ internal static class Program
                 return ExitError;
             }
 
-            var (result, alerts) = await AnalyzeAsync(inputs, cancellation.Token);
-
-            PrintSummary(result);
-            PrintAlerts(alerts);
+            await AnalyzeAsync(inputs, cancellation.Token);
             return ExitSuccess;
         }
         catch (FileNotFoundException ex)
@@ -65,27 +62,22 @@ internal static class Program
         }
     }
 
-    // Runs every event through the detection engine and collects the alerts it raises.
-    private static async Task<(IngestionResult Result, List<Alert> Alerts)> AnalyzeAsync(
-        List<LogInput> inputs, CancellationToken cancellationToken)
+    // Runs every event through the detection engine and prints what was found.
+    private static async Task AnalyzeAsync(List<LogInput> inputs, CancellationToken cancellationToken)
     {
         var engine = new DetectionEngine();
-        var alerts = new List<Alert>();
 
-        // The pipeline has a single consumer, so this handler never runs on two threads at once.
-        EventHandler<AlertRaisedEventArgs> collectAlert = (_, e) => alerts.Add(e.Alert);
-        engine.AlertRaised += collectAlert;
+        // Both subscribe to engine.AlertRaised now, and "using" unsubscribes them when this method ends.
+        // The pipeline has a single consumer, so their handlers never run on two threads at once.
+        using var statistics = new AlertStatistics(engine);
+        using var deduplicator = new AlertDeduplicator(engine);
 
-        try
-        {
-            var result = await new IngestionPipeline().RunAsync(
-                inputs, logEvent => engine.Process(logEvent), cancellationToken);
-            return (result, alerts);
-        }
-        finally
-        {
-            engine.AlertRaised -= collectAlert;
-        }
+        var result = await new IngestionPipeline().RunAsync(
+            inputs, logEvent => engine.Process(logEvent), cancellationToken);
+
+        PrintSummary(result);
+        PrintAlerts(deduplicator.Alerts);
+        PrintStatistics(statistics);
     }
 
     // Pairs every file with the right parser, based on its first lines. Returns null if a format is unknown.
@@ -135,7 +127,7 @@ internal static class Program
         AnsiConsole.Write(table);
     }
 
-    private static void PrintAlerts(List<Alert> alerts)
+    private static void PrintAlerts(IReadOnlyList<Alert> alerts)
     {
         if (alerts.Count == 0)
         {
@@ -148,6 +140,7 @@ internal static class Program
             .AddColumn("Severity")
             .AddColumn("Rule")
             .AddColumn("Source IP")
+            .AddColumn(new TableColumn("Count").RightAligned())
             .AddColumn("Description");
 
         foreach (var alert in alerts.OrderBy(alert => alert.Timestamp))
@@ -158,10 +151,37 @@ internal static class Program
                 SeverityMarkup(alert.Severity),
                 Markup.Escape(alert.RuleName),
                 Markup.Escape(alert.SourceIp?.ToString() ?? "-"),
+                FormatCount(alert.Occurrences),
                 Markup.Escape(alert.Description));
         }
 
         AnsiConsole.MarkupLineInterpolated(CultureInfo.CurrentCulture, $"[bold]{alerts.Count} alert(s):[/]");
+        AnsiConsole.Write(table);
+    }
+
+    private static void PrintStatistics(AlertStatistics statistics)
+    {
+        if (statistics.TotalAlerts == 0)
+        {
+            return;
+        }
+
+        AlertSeverity[] severities = [AlertSeverity.High, AlertSeverity.Medium, AlertSeverity.Low];
+        var bySeverity = string.Join(", ", severities.Select(severity =>
+            $"{SeverityMarkup(severity)} {FormatCount(statistics.BySeverity.GetValueOrDefault(severity))}"));
+        AnsiConsole.MarkupLineInterpolated(
+            CultureInfo.CurrentCulture, $"[bold]{statistics.TotalAlerts} alert(s) before merging repeats.[/]");
+        AnsiConsole.MarkupLine(bySeverity);
+
+        var table = new Table()
+            .AddColumn("Top source IPs")
+            .AddColumn(new TableColumn("Alerts").RightAligned());
+
+        foreach (var (ip, alertCount) in statistics.TopSourceIps(5))
+        {
+            table.AddRow(Markup.Escape(ip.ToString()), FormatCount(alertCount));
+        }
+
         AnsiConsole.Write(table);
     }
 
