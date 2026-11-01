@@ -19,9 +19,6 @@ public sealed record LogEvent
     // The original line (shortened and cleaned).
     public required string RawLine { get; init; }
 
-    // The server that wrote the line, if the log includes it.
-    public string? Host { get; init; }
-
     // The user name, if known.
     public string? User { get; init; }
 

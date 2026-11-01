@@ -8,10 +8,6 @@ internal static class TestAlerts
 {
     public static readonly DateTimeOffset Start = new(2026, 10, 27, 9, 0, 0, TimeSpan.Zero);
 
-    public static Alert Create(
-        string rule = "BruteForce",
-        string? ip = "203.0.113.5",
-        double minutes = 0,
-        AlertSeverity severity = AlertSeverity.High) =>
-        new(rule, severity, Start.AddMinutes(minutes), ip is null ? null : IPAddress.Parse(ip), $"{rule} test alert");
+    public static Alert Create(double minutes) =>
+        new("BruteForce", AlertSeverity.High, Start.AddMinutes(minutes), IPAddress.Parse("203.0.113.5"), "test alert");
 }

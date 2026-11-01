@@ -37,9 +37,6 @@ public sealed class AlertDeduplicator : IDisposable
     // The merged alerts, in the order they were first seen.
     public IReadOnlyList<Alert> Alerts => _alerts;
 
-    // For tests: how many groups are still open. Shows that old groups are forgotten.
-    internal int OpenGroupCount => _openGroups.Count;
-
     // Stops listening. The merged alerts can still be read afterwards.
     public void Dispose() => _publisher.AlertRaised -= OnAlertRaised;
 

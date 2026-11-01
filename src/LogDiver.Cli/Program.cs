@@ -22,7 +22,7 @@ internal static class Program
         if (args.Length == 0)
         {
             AnsiConsole.Write(new FigletText("LogDiver").Color(Color.Green));
-            AnsiConsole.MarkupLine("Usage: LogDiver > output > alerts.jsonl");
+            AnsiConsole.WriteLine("Run LogDiver (completed demo build) to see alerts");
             return ExitError;
         }
 
@@ -98,7 +98,7 @@ internal static class Program
             $"[grey]Saved {alerts.Count} alert(s) to {Path.GetFullPath(JsonLinesAlertRepository.DefaultFileName)}[/]");
     }
 
-    // Pairs every file with the right parser, based on its first lines. Returns null if a format is unknown.
+    // Pairs every file with the right parser, based on its first lines. Returns null if format is unknown.
     private static async Task<List<LogInput>?> CreateInputsAsync(string[] paths, CancellationToken cancellationToken)
     {
         var factory = new LogParserFactory();

@@ -10,7 +10,5 @@ public sealed record SourceSummary(string SourceName, long LinesRead, long Event
 // The outcome of a pipeline run: one summary per log in order.
 public sealed record IngestionResult(IReadOnlyList<SourceSummary> Sources)
 {
-    public long TotalLinesRead => Sources.Sum(source => source.LinesRead);
-
     public long TotalEventsParsed => Sources.Sum(source => source.EventsParsed);
 }

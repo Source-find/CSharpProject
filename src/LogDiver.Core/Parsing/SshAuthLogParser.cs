@@ -45,7 +45,7 @@ public sealed class SshAuthLogParser : ILogParser
         var tokenizer = new SpanTokenizer(line);
 
         if (!TryReadTimestamp(ref tokenizer, out var timestamp)
-            || !tokenizer.TryReadToken(out var host)
+            || !tokenizer.TryReadToken(out _) // Host name, not used
             || !tokenizer.TryReadToken(out var program)
             || !IsSshDaemon(program))
         {
@@ -64,7 +64,6 @@ public sealed class SshAuthLogParser : ILogParser
             Format = LogFormat.SshAuth,
             Kind = kind,
             RawLine = InputSanitizer.Sanitize(line, InputSanitizer.MaxRawLineLength),
-            Host = InputSanitizer.Sanitize(host, InputSanitizer.MaxHostLength),
             User = InputSanitizer.Sanitize(user, InputSanitizer.MaxUserLength),
             SourceIp = sourceIp,
         };

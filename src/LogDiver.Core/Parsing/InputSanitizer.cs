@@ -5,7 +5,6 @@ namespace LogDiver.Core.Parsing;
 internal static class InputSanitizer
 {
     public const int MaxRawLineLength = 4096;
-    public const int MaxHostLength = 255;
     public const int MaxUserLength = 64;
     public const int MaxHttpMethodLength = 32;
     public const int MaxRequestPathLength = 2048;
