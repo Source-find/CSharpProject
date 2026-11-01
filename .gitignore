@@ -23,6 +23,7 @@ alerts.jsonl
 TestResults/
 coverage*.xml
 *.coverage
+.run/
 
 # OS
 .DS_Store
