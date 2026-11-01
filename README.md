@@ -2,7 +2,7 @@
 
 LogDiver is a tiny SIEM(Security Information and Event Manager) for the console. It reads security-relevant logs (SSH auth logs and web server
 access logs), detects suspicious activity such as brute-force logins, web scanning and known attack patterns,
-and prints a report of the alerts. Everything runs locally, so no log data leaves the machine.
+and prints a report of the alerts. Everything runs locally, so no log data leaves the machine. Built by me along with Claude AI
 
 > Status: in development. See [docs/PLAN.md](docs/PLAN.md) for the full plan.
 
