@@ -32,6 +32,13 @@ automatically.
 dotnet run --project src/LogDiver.Cli -- path/to/auth.log path/to/access.log
 ```
 
+Try it with the demo logs, which contain planted attacks:
+
+```bash
+dotnet run --project src/LogDiver.Cli -- samples/demo-auth.log samples/demo-access.log
+```
+
+Found alerts are printed and also added to `alerts.jsonl` (JSON Lines, one alert per line) in the current folder.
 Press Ctrl+C to stop a long analysis.
 
 ## Test

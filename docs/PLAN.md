@@ -6,6 +6,7 @@ a report of the alerts. Everything runs locally, so no log data ever leaves the 
 
 Solo project, ~70 hours estimated (see section 7). Focus: the application and the security detection logic.
 
+This plan was created by AI as a help to build the project.
 ---
 
 ## 1. Scope

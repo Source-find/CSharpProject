@@ -16,6 +16,9 @@ artifacts/
 *.user
 *.suo
 
+# Alerts saved by LogDiver when it runs
+alerts.jsonl
+
 # Test results and coverage
 TestResults/
 coverage*.xml

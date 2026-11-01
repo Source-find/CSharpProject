@@ -8,6 +8,9 @@
     <File Path="global.json" />
     <File Path="README.md" />
   </Folder>
+  <Folder Name="/output/">
+    <File Path="alerts.jsonl" />
+  </Folder>
   <Folder Name="/samples/">
     <File Path="samples/demo-access.log" />
     <File Path="samples/demo-auth.log" />

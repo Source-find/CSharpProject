@@ -4,6 +4,7 @@ using LogDiver.Core.Events;
 using LogDiver.Core.Ingestion;
 using LogDiver.Core.Parsing;
 using LogDiver.Core.Sources;
+using LogDiver.Core.Storage;
 using Spectre.Console;
 
 namespace LogDiver.Cli;
@@ -21,7 +22,7 @@ internal static class Program
         if (args.Length == 0)
         {
             AnsiConsole.Write(new FigletText("LogDiver").Color(Color.Green));
-            AnsiConsole.MarkupLine("Usage: logdiver <log file> [[<log file> ...]]");
+            AnsiConsole.MarkupLine("Usage: LogDiver > output > alerts.jsonl");
             return ExitError;
         }
 
@@ -46,7 +47,7 @@ internal static class Program
         }
         catch (FileNotFoundException ex)
         {
-            // This had to be done with current culture to make sure it runs with norwegian/swedish rules. 1234,5 istead of 1234.5
+            // This had to be done with current culture to make sure it runs with norwegian/swedish number-rules. 1234,5 instead of 1234.5
             AnsiConsole.MarkupLineInterpolated(CultureInfo.CurrentCulture, $"[red]File not found:[/] {ex.FileName ?? ex.Message}");
             return ExitError;
         }
@@ -78,6 +79,23 @@ internal static class Program
         PrintSummary(result);
         PrintAlerts(deduplicator.Alerts);
         PrintStatistics(statistics);
+        await SaveAlertsAsync(deduplicator.Alerts, cancellationToken);
+    }
+
+    // Adds the merged alerts to alerts.jsonl in the current folder, so they can be looked at later.
+    private static async Task SaveAlertsAsync(IReadOnlyList<Alert> alerts, CancellationToken cancellationToken)
+    {
+        if (alerts.Count == 0)
+        {
+            return;
+        }
+
+        var repository = new JsonLinesAlertRepository(JsonLinesAlertRepository.DefaultFileName);
+        await repository.SaveAsync(alerts, cancellationToken);
+
+        AnsiConsole.MarkupLineInterpolated(
+            CultureInfo.CurrentCulture,
+            $"[grey]Saved {alerts.Count} alert(s) to {Path.GetFullPath(JsonLinesAlertRepository.DefaultFileName)}[/]");
     }
 
     // Pairs every file with the right parser, based on its first lines. Returns null if a format is unknown.
@@ -189,7 +207,7 @@ internal static class Program
     {
         AlertSeverity.High => "[red]High[/]",
         AlertSeverity.Medium => "[yellow]Medium[/]",
-        _ => "[grey]Low[/]",
+        _ => "[blue]Low[/]",
     };
 
     private static string FormatCount(long count) => count.ToString("N0", CultureInfo.CurrentCulture);
