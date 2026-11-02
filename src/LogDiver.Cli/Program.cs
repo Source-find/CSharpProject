@@ -9,7 +9,7 @@ using Spectre.Console;
 
 namespace LogDiver.Cli;
 
-// Entry point of the app. Reads the given log files, shows how many lines and events each one had,
+// Entry point of the console program. Reads the given log files, shows how many lines and events each one had,
 // and lists the alerts the detection engine found.
 internal static class Program
 {
@@ -47,7 +47,7 @@ internal static class Program
         }
         catch (FileNotFoundException ex)
         {
-            // This had to be done with current culture to make sure it runs with norwegian/swedish number-rules. 1234,5 instead of 1234.5
+            // This had to be done with current culture to make sure it runs with norwegian/swedish number-rules. 1234,5 instead of 1234,5. Done by AI.
             AnsiConsole.MarkupLineInterpolated(CultureInfo.CurrentCulture, $"[red]File not found:[/] {ex.FileName ?? ex.Message}");
             return ExitError;
         }

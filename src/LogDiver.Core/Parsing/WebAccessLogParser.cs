@@ -17,8 +17,6 @@ public sealed class WebAccessLogParser : ILogParser
 
     private static readonly TimeSpan MaxUtcOffset = TimeSpan.FromHours(14);
 
-    public LogFormat Format => LogFormat.WebAccess;
-
     public bool TryParse(ReadOnlySpan<char> line, [NotNullWhen(true)] out LogEvent? logEvent)
     {
         logEvent = null;

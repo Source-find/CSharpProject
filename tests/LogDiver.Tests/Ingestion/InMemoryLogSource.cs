@@ -14,7 +14,7 @@ internal sealed class InMemoryLogSource(string name, string[] lines) : ILogSourc
         foreach (var line in lines)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            await Task.Yield(); // Behave like real I/O, so producers really interleave.
+            await Task.Yield();
             yield return line;
         }
     }

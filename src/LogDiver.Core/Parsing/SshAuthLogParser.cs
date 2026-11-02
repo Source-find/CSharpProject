@@ -24,20 +24,13 @@ public sealed class SshAuthLogParser : ILogParser
 
     private readonly TimeProvider _timeProvider;
 
-    // Uses the system clock to work out the year (the old timestamp style has none).
-    public SshAuthLogParser()
-        : this(TimeProvider.System)
-    {
-    }
-
-    // Uses the given clock (tests pass in a fake one).
+    // The clock is used to work out the year, which the old timestamp style doesn't have.
+    // The factory passes the system clock; tests pass in a fake one.
     public SshAuthLogParser(TimeProvider timeProvider)
     {
         ArgumentNullException.ThrowIfNull(timeProvider);
         _timeProvider = timeProvider;
     }
-
-    public LogFormat Format => LogFormat.SshAuth;
 
     public bool TryParse(ReadOnlySpan<char> line, [NotNullWhen(true)] out LogEvent? logEvent)
     {

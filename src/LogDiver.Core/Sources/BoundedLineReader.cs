@@ -9,11 +9,11 @@ namespace LogDiver.Core.Sources;
 internal sealed class BoundedLineReader : IDisposable
 {
     public const int DefaultMaxLineLength = 16 * 1024;
-    public const int DefaultBufferSize = 4096;
+
+    private const int BufferSize = 4096;
 
     private readonly TextReader _reader;
     private readonly int _maxLineLength;
-    private readonly int _bufferSize;
     private readonly StringBuilder _line = new();
     private char[] _buffer;
     private int _bufferPosition;
@@ -22,19 +22,16 @@ internal sealed class BoundedLineReader : IDisposable
 
     public BoundedLineReader(
         TextReader reader,
-        int maxLineLength = DefaultMaxLineLength,
-        int bufferSize = DefaultBufferSize)
+        int maxLineLength = DefaultMaxLineLength)
     {
         ArgumentNullException.ThrowIfNull(reader);
         ArgumentOutOfRangeException.ThrowIfLessThan(maxLineLength, 1);
-        ArgumentOutOfRangeException.ThrowIfLessThan(bufferSize, 1);
 
         _reader = reader;
         _maxLineLength = maxLineLength;
-        _bufferSize = bufferSize;
 
         // Borrow the buffer from a shared pool; it is given back in Dispose.
-        _buffer = ArrayPool<char>.Shared.Rent(bufferSize);
+        _buffer = ArrayPool<char>.Shared.Rent(BufferSize);
     }
 
     // Returns the next line, or null at the end of the file.
@@ -51,7 +48,7 @@ internal sealed class BoundedLineReader : IDisposable
                 return line;
             }
 
-            _bufferLength = await _reader.ReadAsync(_buffer.AsMemory(0, _bufferSize), cancellationToken);
+            _bufferLength = await _reader.ReadAsync(_buffer.AsMemory(0, BufferSize), cancellationToken);
             _bufferPosition = 0;
 
             if (_bufferLength == 0)

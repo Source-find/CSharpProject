@@ -19,7 +19,7 @@ internal static class TestEvents
         SourceIp = Attacker,
     };
 
-    public static LogEvent WebRequest(double seconds, int statusCode, string path, string userAgent = "Mozilla/5.0") => new()
+    public static LogEvent WebRequest(double seconds, int statusCode, string path) => new()
     {
         Timestamp = Start.AddSeconds(seconds),
         Format = LogFormat.WebAccess,
@@ -29,6 +29,6 @@ internal static class TestEvents
         StatusCode = statusCode,
         HttpMethod = "GET",
         RequestPath = path,
-        UserAgent = userAgent,
+        UserAgent = "Mozilla/5.0",
     };
 }

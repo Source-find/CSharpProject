@@ -21,9 +21,6 @@ public sealed class SlidingWindowCounter<TKey>
         _window = window;
     }
 
-    // How many keys are being tracked right now.
-    public int TrackedKeyCount => _timesByKey.Count;
-
     // Records that something happened for this key at this time, and returns how many times it has
     // happened within the window. Time comes from the log, not the clock.
     public int Add(TKey key, DateTimeOffset time)
