@@ -2,7 +2,7 @@ using LogDiver.Core.Detection;
 using LogDiver.Core.Detection.Rules;
 
 namespace LogDiver.Tests.Detection.Rules;
-
+// test built by me.
 public class WebScannerRuleTests
 {
     [Fact]

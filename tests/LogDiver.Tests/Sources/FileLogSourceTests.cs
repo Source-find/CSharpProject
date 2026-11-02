@@ -5,7 +5,8 @@ namespace LogDiver.Tests.Sources;
 public sealed class FileLogSourceTests : IDisposable
 {
     private readonly TempLogFile _file = new();
-
+    
+    // Test built by AI
     [Fact]
     public async Task ReadLinesAsync_ReturnsEveryLineInOrder()
     {
@@ -16,7 +17,8 @@ public sealed class FileLogSourceTests : IDisposable
         Assert.Equal("one|two|three", string.Join('|', lines));
     }
 
-    [Fact]
+    // Test helped built by AI to check that a line that is too long is shortened, and that the next line is still read.
+    [Fact] 
     public async Task ReadLinesAsync_HugeLineWithoutLineBreak_IsTruncated()
     {
         // One hostile line must not be able to use up all the memory.

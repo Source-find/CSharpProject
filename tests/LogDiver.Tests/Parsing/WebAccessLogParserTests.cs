@@ -3,7 +3,7 @@ using LogDiver.Core.Events;
 using LogDiver.Core.Parsing;
 
 namespace LogDiver.Tests.Parsing;
-
+// AI generated test to try parsing a full web access log line in the combined format.
 public class WebAccessLogParserTests
 {
     [Fact]

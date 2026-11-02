@@ -4,12 +4,12 @@ using LogDiver.Core.Parsing;
 using Microsoft.Extensions.Time.Testing;
 
 namespace LogDiver.Tests.Parsing;
-
 public class SshAuthLogParserTests
 {
     private readonly SshAuthLogParser _parser =
         new(new FakeTimeProvider(new DateTimeOffset(2026, 10, 27, 12, 0, 0, TimeSpan.Zero)));
-
+    
+    // Test built by me.
     [Fact]
     public void TryParse_FailedPassword_ReturnsLoginFailedEvent()
     {
@@ -24,7 +24,8 @@ public class SshAuthLogParserTests
         Assert.Equal(new DateTimeOffset(2026, 10, 27, 9, 15, 42, TimeSpan.Zero), logEvent.Timestamp);
         Assert.Equal(line, logEvent.RawLine);
     }
-
+    
+    // Test built by AI
     [Fact]
     public void TryParse_UserNameContainingFakeFromClause_UsesRealSourceAddress()
     {

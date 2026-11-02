@@ -3,7 +3,7 @@ using LogDiver.Core.Detection.Rules;
 using LogDiver.Core.Events;
 
 namespace LogDiver.Tests.Detection.Rules;
-
+// Test built by me.
 public class BruteForceRuleTests
 {
     [Fact]

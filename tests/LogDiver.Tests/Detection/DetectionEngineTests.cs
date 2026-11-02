@@ -12,7 +12,8 @@ public class DetectionEngineTests
     private static readonly IPAddress Attacker = IPAddress.Parse("203.0.113.5");
 
     private readonly DetectionEngine _engine = new();
-
+    
+    // Test built by me.
     [Fact]
     public void Process_TenFailedLoginsWithinAMinute_RaisesOneHighBruteForceAlert()
     {
@@ -25,6 +26,7 @@ public class DetectionEngineTests
         Assert.Equal(Attacker, alert.SourceIp);
     }
 
+    // Test built by me.
     [Fact]
     public void Process_ThirtyNotFoundWithinAMinute_RaisesWebScannerAlert()
     {
@@ -35,7 +37,8 @@ public class DetectionEngineTests
         Assert.Equal("WebScanner", alert.RuleName);
         Assert.Equal(AlertSeverity.Medium, alert.Severity);
     }
-
+    
+    // Test built by AI.
     [Theory]
     [InlineData("/../../etc/passwd")]
     [InlineData("/products?id=1 UNION SELECT username, password FROM users")]
@@ -49,6 +52,7 @@ public class DetectionEngineTests
     }
 
     [Fact]
+    // Tests built by AI.
     public void AlertRaised_AfterUnsubscribing_IsNoLongerReceived()
     {
         var raisedCount = 0;

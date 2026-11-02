@@ -2,7 +2,7 @@ using System.Net;
 using LogDiver.Core.Events;
 
 namespace LogDiver.Tests.Detection.Rules;
-
+// Test built by AI during strategy refactor.
 // Builds log events for the rule tests.
 internal static class TestEvents
 {

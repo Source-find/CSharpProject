@@ -3,7 +3,7 @@ using LogDiver.Core.Ingestion;
 
 namespace LogDiver.Tests.Ingestion;
 
-// I had AI generate all the tests.
+// I had AI generate all the tests to test functionality of the IngestionPipeline. I then modified them to make them more readable and added comments.
 public class IngestionPipelineTests
 {
     private static readonly TimeSpan TestTimeout = TimeSpan.FromSeconds(5);
@@ -21,7 +21,8 @@ public class IngestionPipelineTests
         Assert.True(IsInOrder(received, "a"));
         Assert.True(IsInOrder(received, "b"));
     }
-
+    
+    // this test shows how it wont deadlock when the handler is slow, because the channel is bounded and the producer will wait for the consumer to catch up.
     [Fact]
     public async Task RunAsync_ManySources_NeverCallsHandlerFromTwoThreadsAtOnce()
     {
@@ -42,7 +43,8 @@ public class IngestionPipelineTests
 
         Assert.False(overlapped);
     }
-
+    
+    // This test tries to simulate a situation where the handler is slow and the channel is bounded, so the producer will wait for the consumer to catch up. It checks that the handler is never called from two threads at once.
     [Fact]
     public async Task RunAsync_HandlerFails_StopsProducersInsteadOfHanging()
     {
