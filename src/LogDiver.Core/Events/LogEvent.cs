@@ -2,6 +2,7 @@ using System.Net;
 
 namespace LogDiver.Core.Events;
 
+// This class is not fully used because of cuts to the original plan, mainly getting user names from the logs. It is kept for future use, but it is not used in the current version of LogDiver.
 // One security-relevant event read from a log line.
 // All text comes from the log and may be written by an attacker. It is shortened and cleaned,
 // but must still be escaped before it is shown in the console.

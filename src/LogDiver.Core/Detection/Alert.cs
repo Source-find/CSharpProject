@@ -7,7 +7,7 @@ public sealed record Alert(
     string RuleName,
     AlertSeverity Severity,
     DateTimeOffset Timestamp,
-    IPAddress? SourceIp,
+    IPAddress? SourceIp,  //Had some help with what ? means. It means that the value can be null, so it is optional. Nullable type.
     string Description)
 {
     // How many times this alert happened. Above 1 when AlertDeduplicator merged repeats into it.

@@ -3,6 +3,7 @@ using System.Net;
 namespace LogDiver.Core.Detection;
 
 // One row of the "top source IPs" list.
+// Help gotten from AI when it comes to the record struct.
 public readonly record struct IpAlertCount(IPAddress Ip, int AlertCount);
 
 // Counts every alert a publisher raises: in total, per severity, per rule and per source IP.
@@ -39,7 +40,8 @@ public sealed class AlertStatistics : IDisposable
 
     // Stops listening. The numbers counted so far can still be read afterwards.
     public void Dispose() => _publisher.AlertRaised -= OnAlertRaised;
-
+    
+    // Handles the AlertRaised event from the publisher. Increments the total, the severity count and the source IP count.    
     private void OnAlertRaised(object? sender, AlertRaisedEventArgs e)
     {
         var alert = e.Alert;

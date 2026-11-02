@@ -1,7 +1,8 @@
 namespace LogDiver.Core.Parsing;
 
-// Splits a line into fields (words, "quoted" and [bracketed] text) without copying it.
-// Every field is a slice of the original line, so nothing new is allocated.
+// This file was generated partially by AI.'
+// Splits a line into fields (words, quoted and bracketed text) without copying it.
+// Every field is a slice from the original line, so nothing new is allocated.
 internal ref struct SpanTokenizer
 {
     private ReadOnlySpan<char> _remaining;
@@ -11,10 +12,11 @@ internal ref struct SpanTokenizer
         _remaining = text;
     }
 
-    // The part of the line that hasn't been read yet.
+    // The remaining part of the line, not read yet.
     public readonly ReadOnlySpan<char> Remaining => _remaining;
 
     // Reads the next word. Extra spaces are skipped.
+    // Method built by AI.
     public bool TryReadToken(out ReadOnlySpan<char> token)
     {
         _remaining = _remaining.TrimStart(' ');
@@ -38,6 +40,7 @@ internal ref struct SpanTokenizer
     }
 
     // Reads text between two characters, for example [ and ].
+    // Method built by AI.
     public bool TryReadDelimited(char open, char close, out ReadOnlySpan<char> value)
     {
         value = default;
@@ -58,7 +61,7 @@ internal ref struct SpanTokenizer
         return true;
     }
 
-    // Reads text between double quotes. A quote with a backslash in front belongs to the text.
+    // Reads text between double quotes and handles escaped quotes.
     public bool TryReadQuoted(out ReadOnlySpan<char> value)
     {
         value = default;
@@ -80,7 +83,8 @@ internal ref struct SpanTokenizer
 
         return false;
     }
-
+    
+    // Returns true if the character at the given index is escaped by a backslash, false otherwise.
     private static bool IsEscaped(ReadOnlySpan<char> text, int index)
     {
         var backslashes = 0;

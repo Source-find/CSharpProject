@@ -5,6 +5,7 @@ using LogDiver.Core.Events;
 
 namespace LogDiver.Core.Parsing;
 
+// Class built mostly by AI, comments and some minor changes by me.
 // Reads Apache/Nginx access log lines, for example:
 // 203.0.113.9 - frank [27/Oct/2026:14:03:11 +0100] "GET /index.html HTTP/1.1" 200 2326 "-" "Mozilla/5.0"
 public sealed class WebAccessLogParser : ILogParser
@@ -16,7 +17,8 @@ public sealed class WebAccessLogParser : ILogParser
     private const int MaxStatusCode = 599;
 
     private static readonly TimeSpan MaxUtcOffset = TimeSpan.FromHours(14);
-
+    
+    // Tries to parse a line from the access log by reading its components and building a log event. Returns true if it was an actual login event, false otherwise.
     public bool TryParse(ReadOnlySpan<char> line, [NotNullWhen(true)] out LogEvent? logEvent)
     {
         logEvent = null;
@@ -35,7 +37,7 @@ public sealed class WebAccessLogParser : ILogParser
             return false;
         }
 
-        // Skip the response size and referer. The user agent is only in the combined format.
+        // The user agent is optional, and the log line may end after the status code. If the user agent is present, it is the last quoted string in the line.
         _ = tokenizer.TryReadToken(out _);
         var userAgent = tokenizer.TryReadQuoted(out _) && tokenizer.TryReadQuoted(out var userAgentToken)
             ? userAgentToken
@@ -102,13 +104,15 @@ public sealed class WebAccessLogParser : ILogParser
 
         return true;
     }
-
+    
+    // Tries to parse a status code like 200 or 404. Returns false if the code is not a valid HTTP status code.
     private static bool TryParseStatusCode(ReadOnlySpan<char> text, out int statusCode) =>
         int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out statusCode)
         && statusCode is >= MinStatusCode and <= MaxStatusCode;
 
     // Splits "GET /path HTTP/1.1" into method and path. Scanners sometimes send garbage
     // with no method; then the whole request is kept as the path.
+    // Method built by AI.
     private static void SplitRequestLine(
         ReadOnlySpan<char> request, out ReadOnlySpan<char> method, out ReadOnlySpan<char> path)
     {
@@ -126,7 +130,7 @@ public sealed class WebAccessLogParser : ILogParser
         path = lastSpace >= 0 ? target[..lastSpace] : target;
     }
 
-    // Returns null for missing fields (empty or "-"), otherwise the cleaned value.
+    // Returns null for missing fields (empty or "-"), otherwise the sanitized value is returned.
     private static string? SanitizeOptional(ReadOnlySpan<char> value, int maxLength) =>
         value.IsEmpty || value.SequenceEqual(EmptyField.AsSpan())
             ? null

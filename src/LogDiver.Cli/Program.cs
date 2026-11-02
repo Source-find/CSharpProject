@@ -9,14 +9,18 @@ using Spectre.Console;
 
 namespace LogDiver.Cli;
 
-// Entry point of the console program. Reads the given log files, shows how many lines and events each one had,
-// and lists the alerts the detection engine found.
+// Entry point of the app. Reads the given log files, shows how many lines and events each one had,
+// and lists the alerts the detection engine found. Prints a summary of how many alerts were found, and how many of each severity. 
+// Saves the alerts to alerts.jsonl in the current folder.
 internal static class Program
 {
     private const int ExitSuccess = 0;
     private const int ExitError = 1;
     private const int ExitCancelled = 130;
 
+    // The main method is asyncronous, so it can await the pipeline and the detection engine.
+    // The main method handles the command line arguments, and prints errors if something goes wrong.
+    // Helped by AI
     private static async Task<int> Main(string[] args)
     {
         if (args.Length == 0)
@@ -47,7 +51,7 @@ internal static class Program
         }
         catch (FileNotFoundException ex)
         {
-            // This had to be done with current culture to make sure it runs with norwegian/swedish number-rules. 1234,5 instead of 1234,5. Done by AI.
+            // This had to be done with current culture to make sure it runs with norwegian/swedish number-rules. 1234,5 instead of 1234.5
             AnsiConsole.MarkupLineInterpolated(CultureInfo.CurrentCulture, $"[red]File not found:[/] {ex.FileName ?? ex.Message}");
             return ExitError;
         }
@@ -62,7 +66,7 @@ internal static class Program
             Console.CancelKeyPress -= onCancelKey;
         }
     }
-
+    // Helped by AI
     // Runs every event through the detection engine and prints what was found.
     private static async Task AnalyzeAsync(List<LogInput> inputs, CancellationToken cancellationToken)
     {
@@ -124,6 +128,7 @@ internal static class Program
         return inputs;
     }
 
+    // Prints a summary of the ingestion results.
     private static void PrintSummary(IngestionResult result)
     {
         var table = new Table()
@@ -144,7 +149,7 @@ internal static class Program
 
         AnsiConsole.Write(table);
     }
-
+    // Prints the alerts in a table, sorted by time.
     private static void PrintAlerts(IReadOnlyList<Alert> alerts)
     {
         if (alerts.Count == 0)
@@ -176,7 +181,7 @@ internal static class Program
         AnsiConsole.MarkupLineInterpolated(CultureInfo.CurrentCulture, $"[bold]{alerts.Count} alert(s):[/]");
         AnsiConsole.Write(table);
     }
-
+    // Prints how many alerts were found, and how many of each severity.
     private static void PrintStatistics(AlertStatistics statistics)
     {
         if (statistics.TotalAlerts == 0)
@@ -186,7 +191,7 @@ internal static class Program
 
         AlertSeverity[] severities = [AlertSeverity.High, AlertSeverity.Medium, AlertSeverity.Low];
         var bySeverity = string.Join(", ", severities.Select(severity =>
-            $"{SeverityMarkup(severity)} {FormatCount(statistics.BySeverity.GetValueOrDefault(severity))}"));
+                    $"{SeverityMarkup(severity)} {FormatCount(statistics.BySeverity.GetValueOrDefault(severity))}"));
         AnsiConsole.MarkupLineInterpolated(
             CultureInfo.CurrentCulture, $"[bold]{statistics.TotalAlerts} alert(s) before merging repeats.[/]");
         AnsiConsole.MarkupLine(bySeverity);
@@ -202,7 +207,8 @@ internal static class Program
 
         AnsiConsole.Write(table);
     }
-
+    
+    // Matches the severity to a color for printing. High is red, Medium is yellow, Low is blue.
     private static string SeverityMarkup(AlertSeverity severity) => severity switch
     {
         AlertSeverity.High => "[red]High[/]",

@@ -3,7 +3,7 @@ using System.Net;
 using LogDiver.Core.Events;
 
 namespace LogDiver.Core.Detection.Rules;
-
+// All done by AI, comments added by me.
 // Web scanner: many requests for pages that don't exist (404 Not Found) from the same IP within a short
 // time (default 30 within 60 seconds). Tools that guess file and folder names cause exactly this pattern.
 public sealed class WebScannerRule : IDetectionRule
@@ -20,7 +20,8 @@ public sealed class WebScannerRule : IDetectionRule
         : this(DefaultThreshold, DefaultWindow)
     {
     }
-
+    
+    // The threshold is the number of 404 Not Found requests from the same IP within the window that triggers an alert.
     public WebScannerRule(int threshold, TimeSpan window)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(threshold, 1);
@@ -32,7 +33,9 @@ public sealed class WebScannerRule : IDetectionRule
     public static TimeSpan DefaultWindow { get; } = TimeSpan.FromSeconds(60);
 
     public string Name => "WebScanner";
-
+    
+    // The rule is triggered when the number of 404 Not Found requests from the same IP within the window exceeds the threshold.
+    // If it does, the counter is reset and an alert is returned.
     public Alert? Evaluate(LogEvent logEvent)
     {
         ArgumentNullException.ThrowIfNull(logEvent);

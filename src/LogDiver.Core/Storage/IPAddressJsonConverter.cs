@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace LogDiver.Core.Storage;
 
+// Built by me, but Ai helped me understand how to write a converter for the ipaddress type.
 // System.Text.Json can't store an IPAddress by itself, so it is written as text like "203.0.113.5".
 internal sealed class IPAddressJsonConverter : JsonConverter<IPAddress>
 {

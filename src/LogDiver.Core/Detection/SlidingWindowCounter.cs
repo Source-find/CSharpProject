@@ -1,5 +1,6 @@
 namespace LogDiver.Core.Detection;
 
+// Fully done by AI, mostly to save time during the strategy refactor.
 // Counts how many times something happened per key (for example per IP address) within a time window
 // that moves forward with the log, such as "the last 60 seconds".
 // Keys that have been quiet for longer than the window are forgotten, so memory depends on how many keys

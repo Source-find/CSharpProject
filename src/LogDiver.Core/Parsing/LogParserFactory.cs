@@ -2,12 +2,13 @@ using LogDiver.Core.Events;
 
 namespace LogDiver.Core.Parsing;
 
-// Factory pattern: creates the right parser for a log format, and can guess the format of a file.
+// This class is a factory for log parsers. It can create a parser for a given log format, and it can also detect the format of a log file by sampling its first lines.
 public sealed class LogParserFactory
 {
     // How many lines DetectFormat looks at.
     public const int DetectionSampleSize = 100;
-
+    
+    // The log formats that we know how to parse. If a new format is added, it will be added here too.
     private static readonly LogFormat[] KnownFormats = [LogFormat.SshAuth, LogFormat.WebAccess];
 
     private readonly TimeProvider _timeProvider;

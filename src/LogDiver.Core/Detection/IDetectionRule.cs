@@ -1,9 +1,9 @@
 using LogDiver.Core.Events;
 
 namespace LogDiver.Core.Detection;
-
-// Strategy pattern: every detection rule is its own class behind this interface. The engine only knows
-// this interface, so rules can be added, removed and tested one at a time without touching the engine.
+// AI used in refactoring the strategy pattern into it. Comments added by me
+// Strategy pattern: Every detection rule is its own class behind this interface. The engine only knows
+// this interface, so rules can be added, removed and tested one at a time without touching the DetectionEngine.
 public interface IDetectionRule
 {
     // The name shown in alerts, for example "BruteForce".

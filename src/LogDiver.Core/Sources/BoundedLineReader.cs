@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace LogDiver.Core.Sources;
-
+// Mostly built by me, but some parts like the buffers were built by help from AI.
 // Reads lines with a maximum length, so one huge hostile line can't use up all the memory.
 // Anything past the limit is dropped. The caller owns the TextReader and disposes it.
 internal sealed class BoundedLineReader : IDisposable
@@ -19,7 +19,7 @@ internal sealed class BoundedLineReader : IDisposable
     private int _bufferPosition;
     private int _bufferLength;
     private bool _disposed;
-
+    
     public BoundedLineReader(
         TextReader reader,
         int maxLineLength = DefaultMaxLineLength)
@@ -53,12 +53,13 @@ internal sealed class BoundedLineReader : IDisposable
 
             if (_bufferLength == 0)
             {
-                // The last line may have no line break; return it anyway.
+                // The last line may have no line break and will be returned anyway.
                 return _line.Length > 0 ? TakeLine() : null;
             }
         }
     }
-
+    
+    // This dispose method helps avoid memory leaks by returning the allocated memory when the boundedlinereader is no longer used.
     public void Dispose()
     {
         if (_disposed)
@@ -73,6 +74,7 @@ internal sealed class BoundedLineReader : IDisposable
 
     // Moves buffered text into the current line. Returns true when the line is complete.
     // Not async, because spans can't be used across an await.
+    // Method built with help from AI.
     private bool TryTakeLineFromBuffer([NotNullWhen(true)] out string? line)
     {
         var available = _buffer.AsSpan(_bufferPosition, _bufferLength - _bufferPosition);
@@ -102,7 +104,7 @@ internal sealed class BoundedLineReader : IDisposable
         }
     }
 
-    // Returns the current line (without a Windows \r at the end) and clears it.
+    // Returns the current line and clears it.
     private string TakeLine()
     {
         var length = _line.Length;

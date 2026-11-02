@@ -3,6 +3,7 @@ using LogDiver.Core.Events;
 
 namespace LogDiver.Core.Ingestion;
 
+// Mostly done by AI. Comments added by me.
 // Reads several logs in parallel and hands every parsed event to one consumer.
 //
 //   file 1 --[producer task]--+
@@ -10,8 +11,8 @@ namespace LogDiver.Core.Ingestion;
 //   file 2 --[producer task]--+
 //
 // One producer per file makes reading parallel. A single consumer means onEvent is never called from
-// two threads at once, so the detection rules don't need locks. The channel is bounded: when it is
-// full, producers wait (backpressure) instead of filling memory with unhandled events.
+// two threads at once, so the detection rules don't need locks. The channel is bounded, when it is
+// full, producers wait instead of filling memory with unhandled events. Thus saving memory.
 public sealed class IngestionPipeline
 {
     public const int DefaultChannelCapacity = 10_000;

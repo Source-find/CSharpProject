@@ -3,7 +3,7 @@ using LogDiver.Core.Ingestion;
 
 namespace LogDiver.Tests.Ingestion;
 
-// This was difficult to understand, so i had AI generate all the tests.
+// I had AI generate all the tests.
 public class IngestionPipelineTests
 {
     private static readonly TimeSpan TestTimeout = TimeSpan.FromSeconds(5);

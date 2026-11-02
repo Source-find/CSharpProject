@@ -5,6 +5,7 @@ using LogDiver.Core.Sources;
 
 namespace LogDiver.Core.Storage;
 
+// Built mostly by AI except for the read method.
 // Stores alerts in a JSON Lines file: one alert per line, as JSON. Saving only appends to the end,
 // and reading streams one line at a time. JSON escapes quotes, line breaks and control characters,
 // so text from an attacker can't break the file or sneak in fake alerts.

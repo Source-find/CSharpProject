@@ -1,6 +1,6 @@
 namespace LogDiver.Core.Parsing;
-
-// Makes text from a log safe to store and show: shortens it and replaces characters
+// Ai used in building and understanding the sanitize method along with unfamiliar concepts.
+// Makes text from a log safe to store and show by shortening it and replacing characters
 // that could mess with the terminal (escape codes) or flip the text direction (bidi).
 internal static class InputSanitizer
 {
@@ -36,7 +36,9 @@ internal static class InputSanitizer
 
         return new string(buffer);
     }
-
+    
+    // Returns the index of the first unsafe character in the text, or -1 if there are none.
+    // This meaning that the method will return -1 if the text is safe, and a non-negative index if there is an unsafe character.
     private static int IndexOfUnsafeCharacter(ReadOnlySpan<char> text)
     {
         for (var i = 0; i < text.Length; i++)
@@ -49,7 +51,8 @@ internal static class InputSanitizer
 
         return -1;
     }
-
+    
+    // Returns true if the character is unsafe, false otherwise.
     private static bool IsUnsafe(char c) =>
         char.IsControl(c)
         || c is >= '‪' and <= '‮'

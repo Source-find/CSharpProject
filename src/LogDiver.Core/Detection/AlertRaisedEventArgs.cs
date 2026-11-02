@@ -1,6 +1,6 @@
 namespace LogDiver.Core.Detection;
 
-// Sent with the DetectionEngine.AlertRaised event: the alert that was just found.
+// Sent with the DetectionEngine.AlertRaised event. Means that the alert that was just picked up by the detection engine.
 public sealed class AlertRaisedEventArgs : EventArgs
 {
     public AlertRaisedEventArgs(Alert alert)

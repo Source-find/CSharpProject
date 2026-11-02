@@ -3,9 +3,11 @@ using System.Text;
 
 namespace LogDiver.Core.Sources;
 
+// This file was mostly built by me, but understanding helped by AI, like the file stream options.
 // Reads a log file once, from top to bottom. Used by the analyze command.
 public sealed class FileLogSource : ILogSource
-{
+{   
+    // the readerbuffer size is the size of the buffer used by a filestream.
     private const int ReaderBufferSize = 4096;
 
     // The sharing flags let a server keep writing to the file (or rotate it) while we read.
@@ -24,8 +26,7 @@ public sealed class FileLogSource : ILogSource
 
     // The file isn't opened until someone starts reading lines.
     public FileLogSource(string path)
-        : this(path, BoundedLineReader.DefaultMaxLineLength)
-    {
+        : this(path, BoundedLineReader.DefaultMaxLineLength) {
     }
 
     internal FileLogSource(string path, int maxLineLength)
@@ -36,7 +37,9 @@ public sealed class FileLogSource : ILogSource
     }
 
     public string Name => _path;
-
+    
+    // Reads the file line by line, returning each line as a string. The lines are read in order, from top to bottom.
+    // The lines are read asynchronously, so the caller can cancel the operation if needed without blocking the thread.
     public async IAsyncEnumerable<string> ReadLinesAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {

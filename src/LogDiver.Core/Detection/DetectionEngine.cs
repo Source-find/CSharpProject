@@ -23,9 +23,9 @@ public sealed class DetectionEngine : IAlertPublisher
         ArgumentNullException.ThrowIfNull(rules);
         _rules = rules.ToArray();
     }
-
+    
     // Raised once for every alert a rule finds (Observer pattern). Handlers run inside the analysis,
-    // so they should be quick. Subscribers must unsubscribe (-=) when done, or the engine keeps them alive.
+    // so they should be quick. Subscribers must unsubscribe when done, or the engine keeps them alive.
     public event EventHandler<AlertRaisedEventArgs>? AlertRaised;
 
     // Asks every rule about one event, raises AlertRaised for each alert and returns them.
@@ -33,7 +33,7 @@ public sealed class DetectionEngine : IAlertPublisher
     {
         ArgumentNullException.ThrowIfNull(logEvent);
 
-        // Most events cause no alert, so the list is only created when there is something to put in it.
+        // Most events cause no alert, so the list is only created when there is something to put in it. A lot of help gotten from AI before refactoring the strategy pattern into it.
         List<Alert>? alerts = null;
         foreach (var rule in _rules)
         {

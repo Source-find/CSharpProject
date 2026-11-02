@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using LogDiver.Core.Events;
 
 namespace LogDiver.Core.Detection.Rules;
-
+// All done by AI, comments added by me
 // Suspicious request: a single web request that contains a known attack pattern in its path, or comes
 // from a known attack tool. The patterns are compiled at build time ([GeneratedRegex]), which is why the
 // class is "partial": the compiler writes the other part.
@@ -34,7 +34,6 @@ public sealed partial class SuspiciousRequestRule : IDetectionRule
             $"Possible {attackName}: {logEvent.HttpMethod} {path}");
     }
 
-    // A lot of help gotten from AI
     // The first matching pattern wins. An attack tool in the user agent is Medium: it shows intent,
     // while the other patterns are actual attack attempts and therefore High.
     private static (string Name, AlertSeverity Severity)? FindAttack(string path, string userAgent)
@@ -67,7 +66,7 @@ public sealed partial class SuspiciousRequestRule : IDetectionRule
         return null;
     }
 
-    // The patterns are kept simple (no nested repetition), so a hostile path can't make them slow (ReDoS).
+    // The patterns are kept simple, so a hostile path can't make them slow (ReDoS).
     [GeneratedRegex(@"\.\./|\.\.\\|\.\.%2f|\.\.%5c|%2e%2e(%2f|%5c|/)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex PathTraversalRegex();
 

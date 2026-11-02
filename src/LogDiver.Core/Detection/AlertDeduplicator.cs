@@ -2,10 +2,11 @@ using System.Net;
 
 namespace LogDiver.Core.Detection;
 
+// Help gotten from AI, mainly with the repeated alert manager, which is a bit tricky to get right. Comments added by me.
 // Merges repeated alerts, F.example sqlmaps, usually returning thousands of alerts in this context, but with the repeated alert manager it shortens it to only one.
 // Alerts from the same rule and source IP count as one while each repeat comes within the cooldown of the
-// previous one; the merged alert gets a higher Occurrences and a later LastSeen. Time comes from the log.
-// Subscribes in the constructor and unsubscribes in Dispose, so use it with "using".
+// previous one. The merged alert gets a higher Occurrences and a later LastSeen. Time comes from the log.
+// Subscribes in the constructor and unsubscribes in Disposek, meaning it can be used in a using statement. The merged alerts can still be read afterwards.
 public sealed class AlertDeduplicator : IDisposable
 {
     private readonly IAlertPublisher _publisher;
@@ -21,7 +22,8 @@ public sealed class AlertDeduplicator : IDisposable
         : this(publisher, DefaultCooldown)
     {
     }
-
+    
+    // Creates a new instance of the AlertDeduplicator with the given publisher and cooldown.
     public AlertDeduplicator(IAlertPublisher publisher, TimeSpan cooldown)
     {
         ArgumentNullException.ThrowIfNull(publisher);
@@ -40,6 +42,7 @@ public sealed class AlertDeduplicator : IDisposable
     // Stops listening. The merged alerts can still be read afterwards.
     public void Dispose() => _publisher.AlertRaised -= OnAlertRaised;
 
+    // Handles the AlertRaised event from the publisher. Merges repeated alerts and adds new ones to the list. This method is all done by AI.
     private void OnAlertRaised(object? sender, AlertRaisedEventArgs e)
     {
         var alert = e.Alert;
