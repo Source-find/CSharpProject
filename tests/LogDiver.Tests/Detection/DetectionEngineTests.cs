@@ -5,7 +5,7 @@ using LogDiver.Core.Events;
 namespace LogDiver.Tests.Detection;
 
 // These tests only look at what goes into the engine and which alerts come out, not at how the engine is
-// built, so they keep working if the engine is refactored later.
+// built, so they keep working after the strategy addition.
 public class DetectionEngineTests
 {
     private static readonly DateTimeOffset Start = new(2026, 10, 27, 9, 0, 0, TimeSpan.Zero);
